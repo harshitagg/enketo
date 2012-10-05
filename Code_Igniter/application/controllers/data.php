@@ -153,7 +153,7 @@ class Data extends CI_Controller {
 				$this->session->set_userdata($result['subdomain'].'_return', $return_url);
 
 				$session_instance = $this->session->userdata($result['subdomain']);
-				echo json_encode(array('edit_url' => $result['edit_url']));//.'_session', 'instance'=>$session_instance));
+				echo json_encode(array('edit_url' => $result['edit_url'].'_session'));//, 'instance'=>$session_instance));
 			}	
 			else
 			{
