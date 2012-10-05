@@ -107,9 +107,12 @@ class Survey_model extends CI_Model {
             if ( $existing->num_rows() > 0 )
             {
                 log_message('debug', 'survey exists already in enketo db, returning edit_url: '.$this->_get_full_survey_edit_url($existing->row()->subdomain));
+                $subdomain = $existing->row()->subdomain;
                 return array('success'=>FALSE, 'reason'=>'existing', 
-                    'url'=> $this->_get_full_survey_url($existing->row()->subdomain),
-                    'edit_url'=> $this->_get_full_survey_edit_url($existing->row()->subdomain));
+                    'subdomain' => $subdomain,
+                    'url'=> $this->_get_full_survey_url($subdomain),
+                    'post_url'=> $this->_get_full_survey_post_url($subdomain),
+                    'edit_url'=> $this->_get_full_survey_edit_url($subdomain));
             } 
 
             $subdomain = $this->_generate_subdomain();
@@ -130,7 +133,7 @@ class Survey_model extends CI_Model {
             log_message('debug', 'result of insert into surveys table: '.$result);
             log_message('debug', 'returning new edit_url: '.$edit_url);
             return ($result != FALSE) ? 
-                array('success'=>TRUE, 'url'=> $survey_url, 'edit_url' => $edit_url) : array('success'=>FALSE, 'reason'=>'database');
+                array('success'=>TRUE, 'url'=> $survey_url, 'edit_url' => $edit_url, 'post_url'=> $this->_get_full_survey_post_url($subdomain), 'subdomain' => $subdomain) : array('success'=>FALSE, 'reason'=>'database');
         }
         log_message('debug', 'unknown error occurred when trying to launch survey');
         return array('success'=>FALSE, 'reason'=>'unknown');
@@ -160,6 +163,19 @@ class Survey_model extends CI_Model {
         $domain = $_SERVER['SERVER_NAME'];
         $domain = (strpos($domain, 'www.') === 0 ) ? substr($domain, 4) : $domain; 
         return $protocol.$subdomain.($this->ONLINE_SUBDOMAIN_SUFFIX).'.'.$domain.'/webform/edit';
+    }
+
+    /**
+     * @method _get_full_survey_post_url turns a subdomain into the full url where instances to edit can be posted
+     * 
+     * @param $subdomain subdomain
+     */
+    private function _get_full_survey_post_url($subdomain)
+    {
+        $protocol = (empty($_SERVER['HTTPS'])) ? 'http://' : 'https://';
+        $domain = $_SERVER['SERVER_NAME'];
+        $domain = (strpos($domain, 'www.') === 0 ) ? substr($domain, 4) : $domain; 
+        return $protocol.$subdomain.($this->ONLINE_SUBDOMAIN_SUFFIX).'.'.$domain.'/webform/post_instance';
     }
 
 // 	public function update_formlist()

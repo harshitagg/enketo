@@ -125,9 +125,11 @@ class Data extends CI_Controller {
 		$this->output->set_status_header($http_code, $response);
 	}
 
+
 	public function edit_url()
 	{
 		$this->load->helper('subdomain');
+		$this->load->library('session');
 		$this->load->model('Survey_model', '', TRUE);
 		$subdomain = get_subdomain();
 
@@ -140,18 +142,18 @@ class Data extends CI_Controller {
 			extract($_POST);
 
 			//trim strings first??
-			if (!empty($server_url) && !empty($form_id) && !empty($instance))
+			if (!empty($server_url) && !empty($form_id) && !empty($instance) && !empty($return_url))
 			{
-				//to be replaced by user-submitted and -editable submission_url
 				$submission_url = (strrpos($server_url, '/') === strlen($server_url)-1) ? 
 					$server_url.'submission' :$server_url.'/submission';
 
-				//$data_url = (empty($data_url)) ? NULL : $data_url;
-				//$email = (empty($email)) ? NULL : $email;
+				$result = $this->Survey_model->launch_survey($server_url, $form_id, $submission_url, NULL, NULL);
 
-				$result = $this->Survey_model->launch_survey($server_url, $form_id, $submission_url, $data_url, $email);
+				$this->session->set_userdata($result['subdomain'], $instance);
+				$this->session->set_userdata($result['subdomain'].'_return', $return_url);
 
-				echo json_encode($result);
+				$session_instance = $this->session->userdata($result['subdomain']);
+				echo json_encode(array('edit_url' => $result['edit_url']));//.'_session', 'instance'=>$session_instance));
 			}	
 			else
 			{
