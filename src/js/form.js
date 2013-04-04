@@ -2012,7 +2012,7 @@ function Form (formSelector, dataStr, dataStrToEdit){
 			this.radioWidget();
 		},
 		radioWidget : function(){
-			if (!this.repeat){
+			/*if (!this.repeat){
 				$form.on('click', 'label[data-checked="true"]', function(event){
 					$(this).removeAttr('data-checked');
 					$(this).parent().find('input').prop('checked', false).trigger('change');
@@ -2025,7 +2025,7 @@ function Form (formSelector, dataStr, dataStrToEdit){
 				});
 				//defaults
 				$form.find('input[type="radio"]:checked').parent('label').attr('data-checked', 'true');
-			}
+			}*/
 		},
 		touchRadioCheckWidget : function(){
 			if (!this.repeat){
