@@ -2062,11 +2062,27 @@ function Form (formSelector, dataStr, dataStrToEdit){
 			this.barcodeWidget();
 			this.offlineFileWidget();
 			this.mediaLabelWidget();
-			//this.radioWidget();
+			this.radioCheckWidget();
+			this.radioUnselectWidget();
 		},
-		radioWidget : function(){
+		radioCheckWidget : function(){
 			if (!this.repeat){
-				$form.on('click', 'label[data-checked="true"]', function(event){
+				var $label;
+				$form.on('click', 'input[type="radio"]:checked', function(event){
+					$(this).parent('label').siblings().removeAttr('data-checked').end().attr('data-checked', 'true');
+				});
+				$form.on('click', 'input[type="checkbox"]', function(event){
+					$label = $(this).parent('label');
+					if ($(this).is(':checked')) $label.attr('data-checked', 'true');
+					else $label.removeAttr('data-checked');
+				});
+				//defaults
+				$form.find('input[type="radio"]:checked, input[type="checkbox"]:checked').parent('label').attr('data-checked', 'true');
+			}
+		},
+		radioUnselectWidget : function(){
+			if (!this.repeat){
+				/*$form.on('click', 'label[data-checked]', function(event){
 					$(this).removeAttr('data-checked');
 					$(this).parent().find('input').prop('checked', false).trigger('change');
 					if (event.target.nodeName.toLowerCase() !== 'input'){
@@ -2074,12 +2090,13 @@ function Form (formSelector, dataStr, dataStrToEdit){
 					}
 				});
 				$form.on('click', 'input[type="radio"]:checked', function(event){
-					$(this).parent('label').attr('data-checked', 'true');
+					$(this).parent('label').siblings().removeAttr('data-checked').end().attr('data-checked', 'true');
 				});
 				//defaults
-				$form.find('input[type="radio"]:checked').parent('label').attr('data-checked', 'true');
+				$form.find('input[type="radio"]:checked').parent('label').attr('data-checked', 'true');*/
 			}
 		},
+		//TODO: check performance difference if this is done in pure CSS only.
 		touchRadioCheckWidget : function(){
 			if (!this.repeat){
 				$form.find('fieldset:not(.jr-appearance-compact, .jr-appearance-quickcompact, .jr-appearance-label, .jr-appearance-list-nolabel )')
@@ -2097,8 +2114,10 @@ function Form (formSelector, dataStr, dataStrToEdit){
 				This doesn't seem to effect the actual value of the input, just the way it is displayed. But if the incorrectly displayed date is then 
 				attempted to be edited again, it does get the incorrect value and it's impossible to clear this and create a valid date.
 			*/
-			var culprit = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-us; GT-P3113 Build/JRO03C) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
-			if (!this.repeat && navigator.userAgent === culprit){
+			//browser: "Mozilla/5.0 (Linux; U; Android 4.1.1; en-us; GT-P3113 Build/JRO03C) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
+			//webview: "Mozilla/5.0 (Linux; U; Android 4.1.2; en-us; GT-P3100 Build/JZO54K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30"
+			var culpritFinder = /GT-P31[0-9]{2}.+AppleWebKit\/534\.30/;
+			if (!this.repeat && culpritFinder.test(navigator.userAgent)){
 				//in the browser the focus event is fired when a user clicks the field and after the native picker closes.
 				//the value at the second focus event is the new value
 				$form.on('focus', 'input[type="date"]', function(event){
